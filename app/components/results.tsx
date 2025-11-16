@@ -57,7 +57,6 @@ const mockData = {
 	},
 };
 
-// Configurações dos gráficos
 const serieConfig: ChartConfig = {
 	"6° Ano": { label: "6° Ano", color: "chart-1" },
 	"7° Ano": { label: "7° Ano", color: "chart-2" },
@@ -71,57 +70,12 @@ const sexoConfig: ChartConfig = {
 	Masculino: { label: "Masculino", color: "chart-2" },
 };
 
-const sucoConfig: ChartConfig = {
-	Acerola: { label: "Acerola", color: "chart-1" },
-	Manga: { label: "Manga", color: "chart-2" },
-	Goiaba: { label: "Goiaba", color: "chart-3" },
-};
-
-const sobremesaConfig: ChartConfig = {
-	Banana: { label: "Banana", color: "chart-1" },
-	Melancia: { label: "Melancia", color: "chart-2" },
-};
-
-const hortalicaConfig: ChartConfig = {
-	Macaxeira: { label: "Macaxeira", color: "chart-1" },
-	"Batata doce": { label: "Batata doce", color: "chart-2" },
-};
-
-const proteinaConfig: ChartConfig = {
-	Frango: { label: "Frango", color: "chart-1" },
-	Carne: { label: "Carne", color: "chart-2" },
-};
-
-// Transformar dados para os gráficos
 const serieData = mockData.demographics.serie.map((item) => ({
 	name: item.name,
 	[item.name]: item.value,
 }));
 
 const sexoData = mockData.demographics.sexo.map((item) => ({
-	name: item.name,
-	code: item.name,
-	value: item.value,
-}));
-
-const sucoData = mockData.sugestoes.suco.map((item) => ({
-	name: item.name,
-	[item.name]: item.value,
-}));
-
-const sobremesaData = mockData.sugestoes.sobremesa.map((item) => ({
-	name: item.name,
-	code: item.name,
-	value: item.value,
-}));
-
-const hortalicaData = mockData.sugestoes.hortalica.map((item) => ({
-	name: item.name,
-	code: item.name,
-	value: item.value,
-}));
-
-const proteinaData = mockData.sugestoes.proteina.map((item) => ({
 	name: item.name,
 	code: item.name,
 	value: item.value,
@@ -153,7 +107,6 @@ export function Results() {
 					<TabList className="overflow-x-auto">
 						<Tab id="geral">Visão Geral</Tab>
 						<Tab id="mais-votados">Mais Votados</Tab>
-						<Tab id="sugestoes">Sugestões</Tab>
 					</TabList>
 
 					{/* Visão Geral */}
@@ -306,96 +259,6 @@ export function Results() {
 											</div>
 										</div>
 									))}
-								</div>
-							</div>
-
-							{/* Destaque do Vencedor */}
-							<div className="bg-gradient-to-r from-yellow-400 to-orange-500 rounded-lg shadow-lg p-6 text-white">
-								<div className="text-center">
-									<div className="text-6xl mb-3">🏆</div>
-									<h3 className="text-2xl font-bold mb-2">Campeão Absoluto!</h3>
-									<p className="text-3xl font-bold mb-1">
-										{mockData.alimentosMaisVotados[0].name}
-									</p>
-									<p className="text-xl opacity-90">
-										{mockData.alimentosMaisVotados[0].votes} votos (
-										{mockData.alimentosMaisVotados[0].percent}% dos
-										participantes)
-									</p>
-								</div>
-							</div>
-						</div>
-					</TabPanel>
-
-					{/* Sugestões */}
-					<TabPanel id="sugestoes">
-						<div className="space-y-6">
-							<div className="grid md:grid-cols-2 gap-6">
-								{/* Sobremesa */}
-								<div className="bg-white rounded-lg shadow-lg p-6">
-									<h3 className="text-lg font-bold text-gray-800 mb-4">
-										🍌 Fruta para Sobremesa
-									</h3>
-									<div className="h-64">
-										<PieChart
-											data={sobremesaData}
-											dataKey="value"
-											nameKey="name"
-											config={sobremesaConfig}
-											variant="donut"
-											showLabel={false}
-										/>
-									</div>
-								</div>
-
-								{/* Suco */}
-								<div className="bg-white rounded-lg shadow-lg p-6">
-									<h3 className="text-lg font-bold text-gray-800 mb-4">
-										🧃 Fruta para Suco
-									</h3>
-									<div className="h-64">
-										<BarChart
-											data={sucoData}
-											dataKey="name"
-											config={sucoConfig}
-											hideXAxis={false}
-											hideYAxis={false}
-										/>
-									</div>
-								</div>
-
-								{/* Hortaliça */}
-								<div className="bg-white rounded-lg shadow-lg p-6">
-									<h3 className="text-lg font-bold text-gray-800 mb-4">
-										🥔 Hortaliça Preferida
-									</h3>
-									<div className="h-64">
-										<PieChart
-											data={hortalicaData}
-											dataKey="value"
-											nameKey="name"
-											config={hortalicaConfig}
-											variant="donut"
-											showLabel={false}
-										/>
-									</div>
-								</div>
-
-								{/* Proteína */}
-								<div className="bg-white rounded-lg shadow-lg p-6">
-									<h3 className="text-lg font-bold text-gray-800 mb-4">
-										🍗 Proteína Preferida
-									</h3>
-									<div className="h-64">
-										<PieChart
-											data={proteinaData}
-											dataKey="value"
-											nameKey="name"
-											config={proteinaConfig}
-											variant="donut"
-											showLabel={false}
-										/>
-									</div>
 								</div>
 							</div>
 						</div>
