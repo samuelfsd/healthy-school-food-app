@@ -1,6 +1,8 @@
 "use client";
 
 import { ClipboardDocumentCheckIcon } from "@heroicons/react/24/outline";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
 	Navbar,
 	NavbarGap,
@@ -14,6 +16,9 @@ import {
 } from "@/components/ui/navbar";
 
 export default function AppNavbar(props: NavbarProps) {
+	const pathname = usePathname();
+	const isActive = (href: string) => pathname === href;
+
 	return (
 		<NavbarProvider>
 			<Navbar {...props}>
@@ -28,15 +33,14 @@ export default function AppNavbar(props: NavbarProps) {
 				</NavbarStart>
 				<NavbarGap />
 				<NavbarSection>
-					<NavbarItem href="/" isCurrent>
-						Home
+					<NavbarItem isCurrent={isActive("/")}>
+						<Link href="/">Home</Link>
 					</NavbarItem>
-					<NavbarItem href="/about">Sobre</NavbarItem>
-					<NavbarItem href="/result">Resultados</NavbarItem>
-					<NavbarItem href="/politicas">Políticas</NavbarItem>
+					<NavbarItem isCurrent={isActive("/results")}>
+						<Link href="/results">Resultados</Link>
+					</NavbarItem>
 				</NavbarSection>
 			</Navbar>
-
 			<NavbarMobile>
 				<NavbarTrigger />
 			</NavbarMobile>

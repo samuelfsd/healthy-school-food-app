@@ -1,0 +1,55 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client"
+  output   = "../app/generated/prisma"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+
+model tb_survey_responses {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  // demographic data
+  gender String // "feminino" | "masculino"
+  age_range String // "10-11" | "12-14" | "15-20" | "20-30" | "40-50" | "60-70"
+  grade String // "6_ano" | "7_ano" | "8_ano" | "9_ano" | "eja"
+
+  // school meal questions
+  eats_school_meal String // "sim" | "nao"
+  meal_frequency String? // "1_vez" | "2_vezes" | "3_vezes" | "4_vezes" | "todos_dias"
+  likes_meal String // "sim" | "nao"
+  menu_is_varied String // "sim" | "nao"
+  wants_to_participate String // "sim" | "nao"
+  knows_pnae String // "sim" | "nao"
+  knows_paa String // "sim" | "nao"
+  knows_pas String // "sim" | "nao"
+
+  // regional foods
+  favorite_regional_foods String[] // ["cuscuz_ovo", "carne_sol_nata", "arroz_de_leite"]
+
+  // open text responses
+  ultraprocessed_definition String?
+  identifies_ultraprocessed String?
+  ultraprocessed_health_risks String?
+
+  // menu suggestions
+  favorite_dessert_fruit String // "banana" | "melancia"
+  favorite_juice_fruit String // "manga" | "goiaba" | "acerola"
+  favorite_vegetable String // "batata_doce" | "macaxeira"
+  favorite_protein String // "carne" | "frango"
+
+  // audit
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@map("tb_survey_responses")
+}

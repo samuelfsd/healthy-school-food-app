@@ -81,7 +81,7 @@ const sexoData = mockData.demographics.sexo.map((item) => ({
 	value: item.value,
 }));
 
-export function Results() {
+export function ResultsData() {
 	return (
 		<div>
 			<div className="max-w-6xl mx-auto">

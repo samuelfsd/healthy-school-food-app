@@ -1,10 +1,10 @@
-import { Results } from "@/components/results";
+import { ResultsData } from "@/components/results";
 import { Container } from "@/components/ui/container";
 
-export default function Result() {
+export default function Results() {
 	return (
 		<Container className="py-6 sm:py-12">
-			<Results />
+			<ResultsData />
 		</Container>
 	);
 }
