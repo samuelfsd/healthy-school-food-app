@@ -1,7 +1,9 @@
 "use client";
 
 import { useForm } from "@tanstack/react-form";
+import { useRouter } from "next/navigation";
 import z from "zod";
+
 import { Button } from "@/components/ui/button";
 import { FieldError, Fieldset, Label, Legend } from "@/components/ui/field";
 import { Text } from "@/components/ui/text";
@@ -13,6 +15,8 @@ import { Radio, RadioGroup } from "./ui/radio";
 import { Textarea } from "./ui/textarea";
 
 export function PrincipalForm() {
+	const router = useRouter();
+
 	const form = useForm({
 		defaultValues: {
 			gender: "",
@@ -38,24 +42,28 @@ export function PrincipalForm() {
 		onSubmit: async ({ value }) => {
 			if (value.eats_school_meal === "sim" && !value.meal_frequency) {
 				alert(
-					"Por favor, selecione a frequência da merenda quando você disser que come a merenda escolar.",
+					"Por favor, selecione a frequência da merenda quando informado que come a merenda escolar.",
 				);
+
 				return;
 			}
 
 			try {
 				const parsed = surveyFormSchema.parse(value);
-				console.log("Formulário enviado com sucesso:", parsed);
 
-				// const response = await fetch("/api/survey", {
-				// 	method: "POST",
-				// 	headers: { "Content-Type": "application/json" },
-				// 	body: JSON.stringify(parsed),
-				// });
+				const response = await fetch("/api/survey", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify(parsed),
+				});
 
-				// if (!response.ok) throw new Error("Erro ao enviar formulário");
+				if (!response.ok) {
+					const errorData = await response.json();
+					throw new Error(errorData.message || "Erro ao enviar");
+				}
 
 				form.reset();
+				router.push("/results");
 			} catch (err) {
 				if (err instanceof z.ZodError) {
 					console.error("Erros de validação:", err.issues);
