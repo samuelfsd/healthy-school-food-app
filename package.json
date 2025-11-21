@@ -5,11 +5,12 @@
 	"scripts": {
 		"dev": "next dev",
 		"build": "next build",
-		"start": "next start"
+		"start": "next start",
+		"postinstall": "prisma generate"
 	},
 	"dependencies": {
 		"@heroicons/react": "^2.2.0",
-		"@prisma/client": "^6.15.0",
+		"@prisma/client": "^5.22.0",
 		"@tanstack/react-form": "^1.25.0",
 		"dotenv": "^17.2.3",
 		"motion": "^12.23.24",
@@ -31,7 +32,7 @@
 		"@types/node": "^20",
 		"@types/react": "^19",
 		"@types/react-dom": "^19",
-		"prisma": "^6.15.0",
+		"prisma": "^5.22.0",
 		"tailwindcss": "^4",
 		"ts-node": "^10.9.2",
 		"tsx": "^4.20.6",
