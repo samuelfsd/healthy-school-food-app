@@ -14,19 +14,37 @@ export class SurveyService {
 
 		const [
 			sexoGroup,
+			idadeGroup,
 			serieGroup,
 			merendaGroup,
+			frequenciaGroup,
 			gostaGroup,
 			variadoGroup,
 			participarGroup,
+			pnaeGroup,
+			paaGroup,
+			pasGroup,
+			sobremesaGroup,
+			sucoGroup,
+			hortalicaGroup,
+			proteinaGroup,
 			regionalFoodsRaw,
 		] = await Promise.all([
 			repository.getGroupByField("gender"),
+			repository.getGroupByField("age_range"),
 			repository.getGroupByField("grade"),
 			repository.getGroupByField("eats_school_meal"),
+			repository.getGroupByField("meal_frequency"),
 			repository.getGroupByField("likes_meal"),
 			repository.getGroupByField("menu_is_varied"),
 			repository.getGroupByField("wants_to_participate"),
+			repository.getGroupByField("knows_pnae"),
+			repository.getGroupByField("knows_paa"),
+			repository.getGroupByField("knows_pas"),
+			repository.getGroupByField("favorite_dessert_fruit"),
+			repository.getGroupByField("favorite_juice_fruit"),
+			repository.getGroupByField("favorite_vegetable"),
+			repository.getGroupByField("favorite_protein"),
 			repository.getAllRegionalFoods(),
 		]);
 
@@ -38,8 +56,10 @@ export class SurveyService {
 
 				if (fieldKey) {
 					const value = item[fieldKey];
-					const cleanKey = String(value).toLowerCase();
-					result[cleanKey] = item._count._all;
+					if (value !== null && value !== undefined) {
+						const cleanKey = String(value).toLowerCase();
+						result[cleanKey] = item._count._all;
+					}
 				}
 			});
 			return result;
@@ -68,6 +88,10 @@ export class SurveyService {
 					name: i.gender === "feminino" ? "Feminino" : "Masculino",
 					value: i._count._all,
 				})),
+				idade: idadeGroup.map((i: any) => ({
+					name: this.formatIdadeRange(i.age_range),
+					value: i._count._all,
+				})),
 				serie: serieGroup.map((i: any) => ({
 					name: i.grade.replace(/_/g, "° ").replace("eja", "EJA"),
 					value: i._count._all,
@@ -75,12 +99,35 @@ export class SurveyService {
 			},
 			merenda: {
 				comeMerenda: formatGroup(merendaGroup),
+				frequencia: formatGroup(frequenciaGroup),
 				gostaMerenda: formatGroup(gostaGroup),
 				cardapioVariado: formatGroup(variadoGroup),
 				gostariaParticipar: formatGroup(participarGroup),
 			},
+			programas: {
+				pnae: formatGroup(pnaeGroup),
+				paa: formatGroup(paaGroup),
+				pas: formatGroup(pasGroup),
+			},
 			alimentosMaisVotados,
-			sugestoes: await this.getSugestoesData(),
+			sugestoes: {
+				sobremesa: sobremesaGroup.map((i: any) => ({
+					name: this.formatFruitName(i.favorite_dessert_fruit),
+					value: i._count._all,
+				})),
+				suco: sucoGroup.map((i: any) => ({
+					name: this.formatFruitName(i.favorite_juice_fruit),
+					value: i._count._all,
+				})),
+				hortalica: hortalicaGroup.map((i: any) => ({
+					name: this.formatVegetableName(i.favorite_vegetable),
+					value: i._count._all,
+				})),
+				proteina: proteinaGroup.map((i: any) => ({
+					name: this.formatProteinName(i.favorite_protein),
+					value: i._count._all,
+				})),
+			},
 		};
 	}
 
@@ -96,13 +143,35 @@ export class SurveyService {
 		return map[key] || key;
 	}
 
-	private async getSugestoesData() {
-		return {
-			sobremesa: [],
-			suco: [],
-			hortalica: [],
-			proteina: [],
+	private formatIdadeRange(range: string): string {
+		return range.replace("-", " a ") + " anos";
+	}
+
+	private formatFruitName(key: string): string {
+		const map: Record<string, string> = {
+			banana: "Banana",
+			melancia: "Melancia",
+			manga: "Manga",
+			goiaba: "Goiaba",
+			acerola: "Acerola",
 		};
+		return map[key] || key;
+	}
+
+	private formatVegetableName(key: string): string {
+		const map: Record<string, string> = {
+			batata_doce: "Batata doce",
+			macaxeira: "Macaxeira",
+		};
+		return map[key] || key;
+	}
+
+	private formatProteinName(key: string): string {
+		const map: Record<string, string> = {
+			carne: "Carne",
+			frango: "Frango",
+		};
+		return map[key] || key;
 	}
 }
 

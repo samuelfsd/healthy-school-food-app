@@ -22,13 +22,15 @@ import { Tab, TabList, TabPanel, Tabs } from "./ui/tabs";
 
 const initialData: DashboardData = {
 	totalRespostas: 0,
-	demographics: { sexo: [], serie: [] },
+	demographics: { sexo: [], idade: [], serie: [] },
 	merenda: {
 		comeMerenda: {},
+		frequencia: {},
 		gostaMerenda: {},
 		cardapioVariado: {},
 		gostariaParticipar: {},
 	},
+	programas: { pnae: {}, paa: {}, pas: {} },
 	alimentosMaisVotados: [],
 	sugestoes: { sobremesa: [], suco: [], hortalica: [], proteina: [] },
 };
@@ -44,6 +46,23 @@ const serieConfig: ChartConfig = {
 const sexoConfig: ChartConfig = {
 	Feminino: { label: "Feminino", color: "#ec4899" },
 	Masculino: { label: "Masculino", color: "#3b82f6" },
+};
+
+const idadeConfig: ChartConfig = {
+	"10 a 11 anos": { label: "10-11", color: "#06b6d4" },
+	"12 a 14 anos": { label: "12-14", color: "#8b5cf6" },
+	"15 a 20 anos": { label: "15-20", color: "#10b981" },
+	"20 a 30 anos": { label: "20-30", color: "#f59e0b" },
+	"40 a 50 anos": { label: "40-50", color: "#ef4444" },
+	"60 a 70 anos": { label: "60-70", color: "#6366f1" },
+};
+
+const frequenciaConfig: ChartConfig = {
+	"1_vez": { label: "1x/semana", color: "#dc2626" },
+	"2_vezes": { label: "2x/semana", color: "#f59e0b" },
+	"3_vezes": { label: "3x/semana", color: "#eab308" },
+	"4_vezes": { label: "4x/semana", color: "#84cc16" },
+	todos_dias: { label: "Todos os dias", color: "#22c55e" },
 };
 
 const rankingColors = [
@@ -120,6 +139,44 @@ export function ResultsData() {
 		fill: item.name === "Feminino" ? "#ec4899" : "#3b82f6",
 	}));
 
+	const idadeData = data.demographics.idade.map((item: any) => ({
+		name: item.name,
+		value: item.value,
+		fill: idadeConfig[item.name]?.color || "#94a3b8",
+	}));
+
+	const frequenciaData = Object.entries(data.merenda.frequencia || {}).map(
+		([key, value]) => ({
+			name: frequenciaConfig[key]?.label || key,
+			value,
+			fill: frequenciaConfig[key]?.color || "#94a3b8",
+		}),
+	);
+
+	const sobremesaData = data.sugestoes.sobremesa.map((item: any) => ({
+		name: item.name,
+		value: item.value,
+		fill: "#f97316",
+	}));
+
+	const sucoData = data.sugestoes.suco.map((item: any) => ({
+		name: item.name,
+		value: item.value,
+		fill: "#06b6d4",
+	}));
+
+	const hortalicaData = data.sugestoes.hortalica.map((item: any) => ({
+		name: item.name,
+		value: item.value,
+		fill: "#22c55e",
+	}));
+
+	const proteinaData = data.sugestoes.proteina.map((item: any) => ({
+		name: item.name,
+		value: item.value,
+		fill: "#dc2626",
+	}));
+
 	const calcPercent = (val: number | undefined) => {
 		if (!val || data.totalRespostas === 0) return 0;
 
@@ -147,7 +204,6 @@ export function ResultsData() {
 	return (
 		<div>
 			<div className="max-w-6xl mx-auto">
-				{/* Header */}
 				<Card className="p-4">
 					<div className="flex flex-col gap-2">
 						<div>
@@ -164,10 +220,12 @@ export function ResultsData() {
 					</Badge>
 				</Card>
 
-				{/* Tabs */}
 				<Tabs defaultSelectedKey="geral" className="w-full mt-6">
 					<TabList className="overflow-x-auto">
 						<Tab id="geral">Visão Geral</Tab>
+						<Tab id="demograficos">Perfil</Tab>
+						<Tab id="programas">Programas</Tab>
+						<Tab id="sugestoes">Sugestões</Tab>
 						<Tab id="mais-votados">Mais Votados</Tab>
 					</TabList>
 
@@ -214,7 +272,110 @@ export function ResultsData() {
 								</Card>
 							</div>
 
-							{/* Gráficos Demográficos */}
+							{/* Gráficos de Merenda */}
+							<div className="bg-white rounded-lg shadow-lg p-6 border">
+								<h2 className="text-xl font-bold text-gray-800 mb-4">
+									Consumo da Merenda Escolar
+								</h2>
+								<div className="grid md:grid-cols-2 gap-6">
+									<div>
+										<h3 className="font-semibold text-gray-700 mb-4 text-center">
+											Come Merenda Escolar?
+										</h3>
+										<div className="h-[250px] flex items-center justify-center">
+											{Object.keys(data.merenda.comeMerenda).length > 0 ? (
+												<div className="w-full max-w-[300px] aspect-square relative">
+													<PieChart
+														data={[
+															{
+																name: "Sim",
+																value: data.merenda.comeMerenda.sim || 0,
+																fill: "#22c55e",
+															},
+															{
+																name: "Não",
+																value: data.merenda.comeMerenda.nao || 0,
+																fill: "#ef4444",
+															},
+														]}
+														dataKey="value"
+														nameKey="name"
+														config={{
+															Sim: { label: "Sim", color: "#22c55e" },
+															Não: { label: "Não", color: "#ef4444" },
+														}}
+														variant="donut"
+														showLabel={false}
+													/>
+												</div>
+											) : (
+												<div className="text-gray-400">Sem dados</div>
+											)}
+										</div>
+									</div>
+
+									<div>
+										<h3 className="font-semibold text-gray-700 mb-4 text-center">
+											Frequência Semanal
+										</h3>
+										<div className="h-[250px]">
+											{frequenciaData.length > 0 ? (
+												<ResponsiveContainer width="100%" height="100%">
+													<RechartsBarChart
+														data={frequenciaData}
+														margin={{ top: 20, right: 0, left: -10, bottom: 0 }}
+													>
+														<CartesianGrid
+															vertical={false}
+															strokeDasharray="3 3"
+															stroke="#e5e7eb"
+														/>
+														<XAxis
+															dataKey="name"
+															tickLine={false}
+															axisLine={false}
+															tickMargin={10}
+															tick={{ fill: "#6b7280", fontSize: 10 }}
+														/>
+														<YAxis
+															tickLine={false}
+															axisLine={false}
+															tick={{ fill: "#6b7280", fontSize: 12 }}
+														/>
+														<Tooltip
+															cursor={{ fill: "#f3f4f6" }}
+															contentStyle={{
+																borderRadius: "8px",
+																border: "none",
+																boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)",
+															}}
+														/>
+														<Bar
+															dataKey="value"
+															radius={[4, 4, 0, 0]}
+															maxBarSize={50}
+															name="total"
+														>
+															{frequenciaData.map((entry) => (
+																<Cell
+																	key={`cell-${entry.name}`}
+																	fill={entry.fill}
+																/>
+															))}
+														</Bar>
+													</RechartsBarChart>
+												</ResponsiveContainer>
+											) : (
+												<div className="flex h-full items-center justify-center text-gray-400">
+													Sem dados
+												</div>
+											)}
+										</div>
+									</div>
+								</div>
+							</div>
+
+							{/* Perfil dos Participantes */}
 							<div className="bg-white rounded-lg shadow-lg p-6 border">
 								<h2 className="text-xl font-bold text-gray-800 mb-4">
 									Perfil dos Participantes
@@ -314,6 +475,358 @@ export function ResultsData() {
 						</div>
 					</TabPanel>
 
+					{/* Perfil Demográfico */}
+					<TabPanel id="demograficos">
+						<div className="space-y-6 mt-4">
+							<div className="bg-white rounded-lg shadow-lg p-6 border">
+								<h2 className="text-xl font-bold text-gray-800 mb-6">
+									Dados Demográficos
+								</h2>
+
+								<div className="grid md:grid-cols-2 gap-6">
+									<div>
+										<h3 className="font-semibold text-gray-700 mb-4 text-center">
+											Distribuição por Idade
+										</h3>
+										<div className="h-[300px]">
+											{idadeData.length > 0 ? (
+												<ResponsiveContainer width="100%" height="100%">
+													<RechartsBarChart
+														data={idadeData}
+														margin={{
+															top: 20,
+															right: 0,
+															left: -30,
+															bottom: 20,
+														}}
+													>
+														<CartesianGrid
+															vertical={false}
+															strokeDasharray="3 3"
+															stroke="#e5e7eb"
+														/>
+														<XAxis
+															dataKey="name"
+															tickLine={false}
+															axisLine={false}
+															tickMargin={10}
+															tick={{ fill: "#6b7280", fontSize: 10 }}
+															angle={-45}
+															textAnchor="end"
+														/>
+														<YAxis
+															tickLine={false}
+															axisLine={false}
+															tick={{ fill: "#6b7280", fontSize: 12 }}
+														/>
+														<Tooltip />
+														<Bar
+															dataKey="value"
+															radius={[4, 4, 0, 0]}
+															maxBarSize={50}
+															name="total"
+														>
+															{idadeData.map((entry) => (
+																<Cell
+																	key={`cell-${entry.name}`}
+																	fill={entry.fill}
+																/>
+															))}
+														</Bar>
+													</RechartsBarChart>
+												</ResponsiveContainer>
+											) : (
+												<div className="flex h-full items-center justify-center text-gray-400">
+													Sem dados
+												</div>
+											)}
+										</div>
+									</div>
+
+									<div>
+										<h3 className="font-semibold text-gray-700 mb-4 text-center">
+											Frequência da Merenda
+										</h3>
+										<div className="h-[300px]">
+											{frequenciaData.length > 0 ? (
+												<ResponsiveContainer width="100%" height="100%">
+													<RechartsBarChart
+														data={frequenciaData}
+														margin={{ top: 20, right: 0, left: -10, bottom: 0 }}
+													>
+														<CartesianGrid
+															vertical={false}
+															strokeDasharray="3 3"
+															stroke="#e5e7eb"
+														/>
+														<XAxis
+															dataKey="name"
+															tickLine={false}
+															axisLine={false}
+															tickMargin={10}
+															tick={{ fill: "#6b7280", fontSize: 11 }}
+														/>
+														<YAxis
+															tickLine={false}
+															axisLine={false}
+															tick={{ fill: "#6b7280", fontSize: 12 }}
+														/>
+														<Tooltip />
+														<Bar
+															dataKey="value"
+															radius={[4, 4, 0, 0]}
+															maxBarSize={50}
+															name="total"
+														>
+															{frequenciaData.map((entry) => (
+																<Cell
+																	key={`cell-${entry.name}`}
+																	fill={entry.fill}
+																/>
+															))}
+														</Bar>
+													</RechartsBarChart>
+												</ResponsiveContainer>
+											) : (
+												<div className="flex h-full items-center justify-center text-gray-400">
+													Sem dados
+												</div>
+											)}
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</TabPanel>
+
+					{/* Programas */}
+					<TabPanel id="programas">
+						<div className="space-y-6 mt-4">
+							<div className="bg-white rounded-lg shadow-lg p-6 border">
+								<h2 className="text-xl font-bold text-gray-800 mb-6">
+									Conhecimento sobre Programas
+								</h2>
+
+								<div className="grid gap-6">
+									<Card className="p-4 border-l-4 border-l-blue-500">
+										<CardTitle className="text-lg mb-2">
+											PNAE - Programa Nacional de Alimentação Escolar
+										</CardTitle>
+										<div className="flex gap-8 mt-4">
+											<div className="text-center">
+												<div className="text-3xl font-bold text-green-600">
+													{calcPercent(data.programas.pnae.sim)}%
+												</div>
+												<div className="text-sm text-gray-600">Conhecem</div>
+											</div>
+											<div className="text-center">
+												<div className="text-3xl font-bold text-red-600">
+													{calcPercent(data.programas.pnae.nao)}%
+												</div>
+												<div className="text-sm text-gray-600">
+													Não conhecem
+												</div>
+											</div>
+										</div>
+									</Card>
+
+									<Card className="p-4 border-l-4 border-l-purple-500">
+										<CardTitle className="text-lg mb-2">
+											PAA - Programa de Aquisição de Alimentos
+										</CardTitle>
+										<div className="flex gap-8 mt-4">
+											<div className="text-center">
+												<div className="text-3xl font-bold text-green-600">
+													{calcPercent(data.programas.paa.sim)}%
+												</div>
+												<div className="text-sm text-gray-600">Conhecem</div>
+											</div>
+											<div className="text-center">
+												<div className="text-3xl font-bold text-red-600">
+													{calcPercent(data.programas.paa.nao)}%
+												</div>
+												<div className="text-sm text-gray-600">
+													Não conhecem
+												</div>
+											</div>
+										</div>
+									</Card>
+
+									<Card className="p-4 border-l-4 border-l-orange-500">
+										<CardTitle className="text-lg mb-2">
+											PAS - Programa de Alimentação Saudável Nordeste
+										</CardTitle>
+										<div className="flex gap-8 mt-4">
+											<div className="text-center">
+												<div className="text-3xl font-bold text-green-600">
+													{calcPercent(data.programas.pas.sim)}%
+												</div>
+												<div className="text-sm text-gray-600">Conhecem</div>
+											</div>
+											<div className="text-center">
+												<div className="text-3xl font-bold text-red-600">
+													{calcPercent(data.programas.pas.nao)}%
+												</div>
+												<div className="text-sm text-gray-600">
+													Não conhecem
+												</div>
+											</div>
+										</div>
+									</Card>
+								</div>
+							</div>
+						</div>
+					</TabPanel>
+
+					{/* Sugestões */}
+					<TabPanel id="sugestoes">
+						<div className="space-y-6 mt-4">
+							<div className="bg-white rounded-lg shadow-lg p-6 border">
+								<h2 className="text-xl font-bold text-gray-800 mb-6">
+									Preferências para Cardápio
+								</h2>
+
+								<div className="grid md:grid-cols-2 gap-6">
+									<div>
+										<h3 className="font-semibold text-gray-700 mb-4 text-center">
+											Frutas - Sobremesa
+										</h3>
+										<div className="h-[250px]">
+											{sobremesaData.length > 0 ? (
+												<ResponsiveContainer width="100%" height="100%">
+													<RechartsBarChart data={sobremesaData}>
+														<CartesianGrid strokeDasharray="3 3" />
+														<XAxis dataKey="name" />
+														<YAxis />
+														<Tooltip />
+														<Bar
+															name="total"
+															dataKey="value"
+															radius={[4, 4, 0, 0]}
+														>
+															{sobremesaData.map((entry) => (
+																<Cell
+																	key={`cell-${entry.name}`}
+																	fill={entry.fill}
+																/>
+															))}
+														</Bar>
+													</RechartsBarChart>
+												</ResponsiveContainer>
+											) : (
+												<div className="flex h-full items-center justify-center text-gray-400">
+													Sem dados
+												</div>
+											)}
+										</div>
+									</div>
+
+									<div>
+										<h3 className="font-semibold text-gray-700 mb-4 text-center">
+											Frutas - Sucos
+										</h3>
+										<div className="h-[250px]">
+											{sucoData.length > 0 ? (
+												<ResponsiveContainer width="100%" height="100%">
+													<RechartsBarChart data={sucoData}>
+														<CartesianGrid strokeDasharray="3 3" />
+														<XAxis dataKey="name" />
+														<YAxis />
+														<Tooltip />
+														<Bar
+															name="total"
+															dataKey="value"
+															radius={[4, 4, 0, 0]}
+														>
+															{sucoData.map((entry) => (
+																<Cell
+																	key={`cell-${entry.name}`}
+																	fill={entry.fill}
+																/>
+															))}
+														</Bar>
+													</RechartsBarChart>
+												</ResponsiveContainer>
+											) : (
+												<div className="flex h-full items-center justify-center text-gray-400">
+													Sem dados
+												</div>
+											)}
+										</div>
+									</div>
+
+									<div>
+										<h3 className="font-semibold text-gray-700 mb-4 text-center">
+											Hortaliças Preferidas
+										</h3>
+										<div className="h-[250px]">
+											{hortalicaData.length > 0 ? (
+												<ResponsiveContainer width="100%" height="100%">
+													<RechartsBarChart data={hortalicaData}>
+														<CartesianGrid strokeDasharray="3 3" />
+														<XAxis dataKey="name" />
+														<YAxis />
+														<Tooltip />
+														<Bar
+															name="total"
+															dataKey="value"
+															radius={[4, 4, 0, 0]}
+														>
+															{hortalicaData.map((entry) => (
+																<Cell
+																	key={`cell-${entry.name}`}
+																	fill={entry.fill}
+																/>
+															))}
+														</Bar>
+													</RechartsBarChart>
+												</ResponsiveContainer>
+											) : (
+												<div className="flex h-full items-center justify-center text-gray-400">
+													Sem dados
+												</div>
+											)}
+										</div>
+									</div>
+
+									<div>
+										<h3 className="font-semibold text-gray-700 mb-4 text-center">
+											Proteínas Preferidas
+										</h3>
+										<div className="h-[250px]">
+											{proteinaData.length > 0 ? (
+												<ResponsiveContainer width="100%" height="100%">
+													<RechartsBarChart data={proteinaData}>
+														<CartesianGrid strokeDasharray="3 3" />
+														<XAxis dataKey="name" />
+														<YAxis />
+														<Tooltip />
+														<Bar
+															name="total"
+															dataKey="value"
+															radius={[4, 4, 0, 0]}
+														>
+															{proteinaData.map((entry, index) => (
+																<Cell
+																	key={`cell-${entry.name}`}
+																	fill={entry.fill}
+																/>
+															))}
+														</Bar>
+													</RechartsBarChart>
+												</ResponsiveContainer>
+											) : (
+												<div className="flex h-full items-center justify-center text-gray-400">
+													Sem dados
+												</div>
+											)}
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</TabPanel>
+
 					{/* Mais Votados */}
 					<TabPanel id="mais-votados">
 						<div className="space-y-4">
@@ -362,7 +875,6 @@ export function ResultsData() {
 					</TabPanel>
 				</Tabs>
 
-				{/* Footer */}
 				<div className="bg-white rounded-lg shadow-lg p-4 mt-6 text-center text-sm text-gray-500 border">
 					Dados atualizados em tempo real • Total de participações:{" "}
 					{data.totalRespostas}
